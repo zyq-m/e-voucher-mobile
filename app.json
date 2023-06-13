@@ -21,7 +21,7 @@
         "backgroundColor": "#FFD400"
       },
       "package": "com.zyqm.mobile2",
-      "versionCode": 0
+      "versionCode": 1
     },
     "web": {
       "favicon": "./assets/eKupon/favicon.png"
