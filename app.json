@@ -1,0 +1,35 @@
+{
+  "expo": {
+    "name": "mobile-2",
+    "slug": "mobile-2",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/eKupon/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/eKupon/splash-eKupon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#FFD400"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/eKupon/adaptive-icon2.png",
+        "backgroundColor": "#FFD400"
+      },
+      "package": "com.zyqm.mobile2",
+      "versionCode": 0
+    },
+    "web": {
+      "favicon": "./assets/eKupon/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "a43e6dc3-3c63-4f42-8dac-486dba44dec9"
+      }
+    }
+  }
+}
