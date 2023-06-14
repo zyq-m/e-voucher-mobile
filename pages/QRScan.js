@@ -7,6 +7,7 @@ import { ws } from "../lib/Socket";
 import { useUserContext } from "../hooks";
 import { checkURL } from "../utils/checkURL";
 import { popupMessage } from "../utils/popupMessage";
+import { pay } from "../lib/API";
 
 import { QRScanStyle } from "../styles";
 
@@ -27,17 +28,15 @@ const QRScan = ({ navigation, route }) => {
     const cafeId = checkURL(data);
 
     if (cafeId) {
-      ws.emit("pay", cafeId.id, user.id, amount);
-
-      ws.on("pay_detail", res => {
-        if (!res) {
-          return;
-        }
+      try {
+        await pay({
+          id: cafeId.id,
+          data: { sender: user.id, amount: amount },
+        });
 
         ws.emit("get_student", user.id);
         ws.emit("get_transaction_student", user.id);
         ws.emit("get_transaction_cafe", cafeId.id);
-        // TODO: set event to push notification
         ws.emit("send_notification", cafeId.id, {
           title: "Payment recieved",
           body: `You recieved RM${amount}.00 from ${user.details.name} - ${user.details.id}`,
@@ -49,10 +48,21 @@ const QRScan = ({ navigation, route }) => {
 
         popupMessage({ title: "Success", message: "Payment successful👍" });
         navigation.navigate("Dashboard");
-
         // remove socket to avoid looping ascendingly
         ws.removeAllListeners("pay_detail");
-      });
+      } catch (error) {
+        if (error?.response?.status === 400) {
+          popupMessage({
+            message: "Your account is not active. Please contact admin!",
+            title: "Alert!",
+          });
+        } else {
+          popupMessage({
+            message: "Server error",
+            title: "Whoops!",
+          });
+        }
+      }
     } else {
       popupMessage({
         title: "Error",
