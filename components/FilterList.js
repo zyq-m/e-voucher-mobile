@@ -1,6 +1,6 @@
 import { View, Text, TouchableOpacity, Platform } from "react-native";
-// import { printToFileAsync } from "expo-print";
-// import { shareAsync } from "expo-sharing";
+import { printToFileAsync } from "expo-print";
+import { shareAsync } from "expo-sharing";
 import MCIcon from "react-native-vector-icons/MaterialCommunityIcons";
 
 import Button from "./Button";
@@ -19,10 +19,10 @@ const FilterList = ({ onCollapse, list, onList, document }) => {
       if (Platform.OS === "web") {
         alert("Generating PDF feature still in development");
       } else {
-        // const { uri } = await printToFileAsync({
-        //   html: DocumentTemplate(document),
-        // });
-        // await shareAsync(uri, { UTI: ".pdf", mimeType: "application/pdf" });
+        const { uri } = await printToFileAsync({
+          html: DocumentTemplate(document),
+        });
+        await shareAsync(uri, { UTI: ".pdf", mimeType: "application/pdf" });
       }
     } catch (error) {
       console.warn(error);
