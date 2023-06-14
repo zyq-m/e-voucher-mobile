@@ -1,12 +1,13 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { Text, View, Platform } from "react-native";
 import MaterialIcon from "react-native-vector-icons/MaterialIcons";
+import moment from "moment";
 
 import { Refresh, FilterList, TransactionList } from "../components";
 
 import { useUserContext, useTransaction } from "../hooks";
-import { useFilterDate } from "../utils/filterDate";
 import { listData } from "../data/constant";
+import { getTransactionsByDate } from "../lib/API/getTransactionByDate";
 
 import { globals, transactionStyle } from "../styles";
 
@@ -22,13 +23,51 @@ const Transaction = ({ navigation }) => {
   const [list, setList] = useState(listData);
   const [filterTransaction, setFilterTransaction] = useState([]);
 
-  const filterDate = useFilterDate();
-
   const onCollapse = () => setCollapse(prev => !prev);
 
-  const filtered = useMemo(() => filterDate(transactions), [transactions]);
+  const onList = async id => {
+    const dateFormat = "YYYY-MM-DD";
 
-  const onList = id => {
+    try {
+      if (id == 1) {
+        const today = moment().format(dateFormat);
+        const res = await getTransactionsByDate(
+          user.student,
+          user.id,
+          today,
+          today
+        );
+
+        setFilterTransaction(res);
+      } else if (id == 2) {
+        const start = moment().startOf("week").format(dateFormat);
+        const end = moment().endOf("week").format(dateFormat);
+        const res = await getTransactionsByDate(
+          user.student,
+          user.id,
+          start,
+          end
+        );
+
+        setFilterTransaction(res);
+      } else if (id == 3) {
+        const start = moment().startOf("month").format(dateFormat);
+        const end = moment().endOf("month").format(dateFormat);
+        const res = await getTransactionsByDate(
+          user.student,
+          user.id,
+          start,
+          end
+        );
+
+        setFilterTransaction(res);
+      } else {
+        setFilterTransaction(transactions);
+      }
+    } catch (error) {
+      setFilterTransaction([]);
+    }
+
     return setList(prev =>
       prev.map(data => {
         if (data.id === id) {
@@ -39,6 +78,10 @@ const Transaction = ({ navigation }) => {
       })
     );
   };
+
+  useEffect(() => {
+    setFilterTransaction(transactions);
+  }, [transactions]);
 
   useEffect(() => {
     let subscribe = true;
@@ -65,17 +108,6 @@ const Transaction = ({ navigation }) => {
       subscribe = false;
     };
   }, []);
-
-  useEffect(() => {
-    list.forEach(({ checked, id }) => {
-      if (checked) {
-        id === 0 && setFilterTransaction(filtered.getAll);
-        id === 1 && setFilterTransaction(filtered.getToday);
-        id === 2 && setFilterTransaction(filtered.getWeek);
-        id === 3 && setFilterTransaction(filtered.getMonth);
-      }
-    });
-  }, [list, transactions]);
 
   if (loading) {
     return (
@@ -105,7 +137,7 @@ const Transaction = ({ navigation }) => {
           style={transactionStyle.transactionItemWrap}
         />
       </Refresh>
-      {filterTransaction.length === 0 && (
+      {filterTransaction?.length < 1 && (
         <Text
           style={{
             flex: 1,
