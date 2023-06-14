@@ -1,5 +1,5 @@
-import moment from "moment";
 import { countTotal } from "../utils/countTotal";
+import { formatDate, formatTime } from "../utils/formatTime";
 
 const DocumentTemplate = document => {
   const cafeName = document[0].cafe_name;
@@ -10,9 +10,9 @@ const DocumentTemplate = document => {
           <td class="text-center">${i + 1}</td>
           <td>${data.transaction_id}</td>
           <td>${data.student_name} - ${data.sender}</td>
-          <td>${moment(data.created_at).format("hh:mma")} (${moment(
-      data.created_at
-    ).format("DD-MM-YY")})</td>
+          <td>${formatTime(data.created_at)} (${formatDate(
+      data.created_on
+    )})</td>
           <td class="text-center">${data.amount}</td>
         </tr>  
           `;

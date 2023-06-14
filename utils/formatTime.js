@@ -1,9 +1,9 @@
 import moment from "moment";
 
-export const formatTime = time => {
-  return moment(time, "hh:mm a").format("hh:mm a");
+export const formatDate = date => {
+  return moment(date).format("DD/MM/YYYY");
 };
 
-export const formatDate = date => {
-  return moment(date).format("DD/MM/YY");
+export const formatTime = time => {
+  return moment(time, "hh:mma").format("hh:mma");
 };
