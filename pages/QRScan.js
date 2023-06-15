@@ -36,6 +36,11 @@ const QRScan = ({ navigation, route }) => {
           ws.emit("get_student", user.id);
           ws.emit("get_transaction_student", user.id);
           ws.emit("get_transaction_cafe", cafeId.id);
+
+          // update cafe_owner's transaction & sales
+          ws.emit("get_transaction_cafe", cafeId.id);
+          ws.emit("get_sales_amount", cafeId.id);
+
           ws.emit("send_notification", cafeId.id, {
             title: "Payment recieved",
             body: `You recieved RM${amount}.00 from ${user.details.name} - ${user.details.id}`,
