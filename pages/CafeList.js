@@ -40,7 +40,11 @@ const CafeList = ({ navigation, route }) => {
 
       ws.emit("get_student", user.id);
       ws.emit("get_transaction_student", user.id);
+
+      // update cafe_owner's transaction & sales
       ws.emit("get_transaction_cafe", selectedCafe.id);
+      ws.emit("get_sales_amount", selectedCafe.id);
+
       ws.emit("send_notification", selectedCafe.id, {
         title: "Payment recieved",
         body: `You recieved RM${amount}.00 from ${user.details.name} - ${user.details.id}`,
@@ -52,8 +56,6 @@ const CafeList = ({ navigation, route }) => {
 
       popupMessage({ title: "Success", message: "Payment successful👍" });
       navigation.navigate("Dashboard");
-      // remove socket to avoid looping ascendingly
-      ws.removeAllListeners("pay_detail");
     } catch (error) {
       if (error?.response?.status === 400) {
         popupMessage({
