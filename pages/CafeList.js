@@ -8,6 +8,7 @@ import { useUserContext } from "../hooks";
 import { getCafe } from "../lib/API";
 import { ws } from "../lib/Socket";
 import { popupMessage } from "../utils/popupMessage";
+import { pay } from "../lib/API";
 
 import { globals } from "../styles";
 
@@ -30,36 +31,41 @@ const CafeList = ({ navigation, route }) => {
       })
     );
 
-  const onPress = () => {
-    if (selectedCafe) {
-      ws.emit("pay", selectedCafe.id, user.id, amount);
-
-      ws.on("pay_detail", res => {
-        if (!res) {
-          return;
-        }
-
-        ws.emit("get_student", user.id);
-        ws.emit("get_transaction_student", user.id);
-
-        // TODO: update new data to only selected cafe
-        ws.emit("get_transaction_cafe", selectedCafe.id);
-        // TODO: set event to push notification
-        ws.emit("send_notification", selectedCafe.id, {
-          title: "Payment recieved",
-          body: `You recieved RM${amount}.00 from ${user.details.name} - ${user.details.id}`,
-        });
-        ws.emit("send_notification", user.id, {
-          title: "Payment sent",
-          body: `You spent RM${amount}.00 at ${selectedCafe.name}`,
-        });
-
-        popupMessage({ title: "Success", message: "Payment successful👍" });
-        navigation.navigate("Dashboard");
-
-        // remove socket to avoid looping ascendingly
-        ws.removeAllListeners("pay_detail");
+  const onPress = async () => {
+    try {
+      await pay({
+        id: selectedCafe.id,
+        data: { sender: user.id, amount: amount },
       });
+
+      ws.emit("get_student", user.id);
+      ws.emit("get_transaction_student", user.id);
+      ws.emit("get_transaction_cafe", selectedCafe.id);
+      ws.emit("send_notification", selectedCafe.id, {
+        title: "Payment recieved",
+        body: `You recieved RM${amount}.00 from ${user.details.name} - ${user.details.id}`,
+      });
+      ws.emit("send_notification", user.id, {
+        title: "Payment sent",
+        body: `You spent RM${amount}.00 at ${selectedCafe.name}`,
+      });
+
+      popupMessage({ title: "Success", message: "Payment successful👍" });
+      navigation.navigate("Dashboard");
+      // remove socket to avoid looping ascendingly
+      ws.removeAllListeners("pay_detail");
+    } catch (error) {
+      if (error?.response?.status === 400) {
+        popupMessage({
+          message: "Your account is not active. Please contact admin!",
+          title: "Alert!",
+        });
+      } else {
+        popupMessage({
+          message: "Server error",
+          title: "Whoops!",
+        });
+      }
     }
   };
 
