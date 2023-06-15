@@ -49,7 +49,7 @@ const Login = () => {
         .catch(err => {
           popupMessage({
             title: "Cannot login",
-            message: `Invalid matric no or password ${err}`,
+            message: `Invalid matric no or password`,
           });
         });
     }
