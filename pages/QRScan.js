@@ -24,52 +24,54 @@ const QRScan = ({ navigation, route }) => {
     }
   };
 
-  const handleQRScan = async ({ data }) => {
+  //! api call cannot call directly in QR scanner
+  const onPay = async data => {
     const cafeId = checkURL(data);
-
     if (cafeId) {
-      try {
-        await pay({
-          id: cafeId.id,
-          data: { sender: user.id, amount: amount },
-        });
-
-        ws.emit("get_student", user.id);
-        ws.emit("get_transaction_student", user.id);
-        ws.emit("get_transaction_cafe", cafeId.id);
-        ws.emit("send_notification", cafeId.id, {
-          title: "Payment recieved",
-          body: `You recieved RM${amount}.00 from ${user.details.name} - ${user.details.id}`,
-        });
-        ws.emit("send_notification", user.id, {
-          title: "Payment sent",
-          body: `You spent RM${amount}.00 at ${cafeId.name}`,
-        });
-
-        popupMessage({ title: "Success", message: "Payment successful👍" });
-        navigation.navigate("Dashboard");
-        // remove socket to avoid looping ascendingly
-        ws.removeAllListeners("pay_detail");
-      } catch (error) {
-        if (error?.response?.status === 400) {
-          popupMessage({
-            message: "Your account is not active. Please contact admin!",
-            title: "Alert!",
+      pay({
+        id: cafeId.id,
+        data: { sender: user.id, amount: amount },
+      })
+        .then(() => {
+          ws.emit("get_student", user.id);
+          ws.emit("get_transaction_student", user.id);
+          ws.emit("get_transaction_cafe", cafeId.id);
+          ws.emit("send_notification", cafeId.id, {
+            title: "Payment recieved",
+            body: `You recieved RM${amount}.00 from ${user.details.name} - ${user.details.id}`,
           });
-        } else {
-          popupMessage({
-            message: "Server error",
-            title: "Whoops!",
+          ws.emit("send_notification", user.id, {
+            title: "Payment sent",
+            body: `You spent RM${amount}.00 at ${cafeId.name}`,
           });
-        }
-      }
+
+          popupMessage({ title: "Success", message: "Payment successful👍" });
+          navigation.navigate("Dashboard");
+          // remove socket to avoid looping ascendingly
+          ws.removeAllListeners("pay_detail");
+        })
+        .catch(error => {
+          if (error?.response?.status === 400) {
+            popupMessage({
+              message: "Your account is not active. Please contact admin!",
+              title: "Alert!",
+            });
+            popupMessage({
+              message: "Server error",
+              title: "Whoops!",
+            });
+          }
+        });
     } else {
       popupMessage({
         title: "Error",
         message: "Invalid QR code. Please scan again.",
       });
     }
+  };
 
+  const handleQRScan = ({ data }) => {
+    onPay(data);
     setScanned(true);
   };
 
