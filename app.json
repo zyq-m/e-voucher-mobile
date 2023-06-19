@@ -2,7 +2,7 @@
   "expo": {
     "name": "eKupon",
     "slug": "mobile-2",
-    "version": "1.0.0",
+    "version": "1.3.7", // change this version everytime you update with new features
     "orientation": "portrait",
     "icon": "./assets/eKupon/icon.png",
     "userInterfaceStyle": "light",
@@ -21,7 +21,7 @@
         "backgroundColor": "#FFD400"
       },
       "package": "com.zyqm.mobile2",
-      "versionCode": 1
+      "versionCode": 1 // change this version everytime you update with new features
     },
     "web": {
       "favicon": "./assets/eKupon/favicon.png"
